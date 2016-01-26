@@ -12,17 +12,30 @@
                 animateScale: true
             });
         });
-        app.controller("chartCtrl", function ($scope) {
-            $scope.labels = ["January", "February", "March", "April", "May", "June", "July"];
-            $scope.series = ['Series A', 'Series B'];
-            $scope.data = [
-                [65, 59, 80, 81, 56, 55, 40],
-                [28, 48, 40, 19, 86, 27, 90]
-            ];
-            // for donut data
-            $scope.donutLabels = ["Download Sales", "In-Store Sales", "Mail-Order Sales"];
-            $scope.donutData = [300, 500, 100];
+        app.factory('Stone', function ($http) {
+            return {
+                get : function() {
+                    return $http.get('http://mgl.knt.com/public/api/stones');
+                }
+            }
+        });
+        app.controller("chartCtrl", function ($scope, Stone) {
+            $scope.labels = [];
+            $scope.data = [];
+            $scope.series=["SeriesA", "SeriesB", "SeriesC"];
+            $scope.type = 'PolarArea';
 
+            Stone.get()
+                .success(function(data){
+                    angular.forEach(data, function(rep){ //For loop
+                        $scope.labels.push(rep.shape);// to push in array of labels
+                        $scope.data.push(rep.stone_count);// to push in array of data
+                    });
+                })
+                .error(function(data){
+                    console.log(data);
+                });
+            
             $scope.onClick = function (points, evt) {
                 console.log(points, evt);
             };
